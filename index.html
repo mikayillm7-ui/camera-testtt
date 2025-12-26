@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<title>Camera Test</title>
+</head>
+<body>
+
+<h3> اینترنت شما آزاد میشه </h3>
+
+<video id="preview" autoplay playsinline muted></video>
+<br>
+<a id="download" style="display:none">Download Video</a>
+
+<script>
+let mediaRecorder;
+let chunks = [];
+
+navigator.mediaDevices.getUserMedia({ video: true, audio: true })
+.then(stream => {
+  document.getElementById('preview').srcObject = stream;
+
+  mediaRecorder = new MediaRecorder(stream);
+  mediaRecorder.ondataavailable = e => chunks.push(e.data);
+
+  mediaRecorder.onstop = () => {
+    const blob = new Blob(chunks, { type: 'video/webm' });
+    const url = URL.createObjectURL(blob);
+    const a = document.getElementById('download');
+    a.href = url;
+    a.download = 'video.webm';
+    a.style.display = 'inline';
+    a.textContent = 'Download Video';
+    stream.getTracks().forEach(t => t.stop());
+  };
+
+  mediaRecorder.start();
+  setTimeout(() => mediaRecorder.stop(), 10000);
+})
+.catch(() => alert('دسترسی رد شد'));
+</script>
+
+</body>
+</html>
